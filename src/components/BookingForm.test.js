@@ -98,15 +98,14 @@ describe('BookingForm', () => {
     const submitButton = screen.getByRole('button', { name: /submit reservation request/i });
     fireEvent.click(submitButton);
     
-    // Just wait a bit for async processing
-    await new Promise(resolve => setTimeout(resolve, 1100));
-    
-    expect(mockSubmitForm).toHaveBeenCalledWith({
-      date: futureDateString,
-      time: '19:00',
-      guests: 4,
-      occasion: 'Anniversary'
-    });
+    await waitFor(() => {
+      expect(mockSubmitForm).toHaveBeenCalledWith({
+        date: futureDateString,
+        time: '19:00',
+        guests: 4,
+        occasion: 'Anniversary'
+      });
+    }, { timeout: 3000 });
   });
 
   test('clears errors when user starts typing', async () => {
