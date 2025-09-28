@@ -1,11 +1,7 @@
-import React, { useState, useReducer } from 'react';
+import React, { useState } from 'react';
 import './BookingForm.css';
-import { initializeTimes, updateTimes } from '../utils/bookingUtils';
 
-const initialTimes = initializeTimes();
-
-const BookingForm = ({ submitForm }) => {
-  const [availableTimes, dispatch] = useReducer(updateTimes, initialTimes);
+const BookingForm = ({ submitForm, availableTimes = [], dispatch }) => {
   
   const [formData, setFormData] = useState({
     date: '',

@@ -3,13 +3,16 @@ import BookingForm from './BookingForm';
 
 describe('BookingForm', () => {
   const mockSubmitForm = jest.fn();
+  const mockDispatch = jest.fn();
+  const mockAvailableTimes = ['17:00', '18:00', '19:00', '20:00', '21:00', '22:00'];
 
   beforeEach(() => {
     mockSubmitForm.mockClear();
+    mockDispatch.mockClear();
   });
 
   test('renders all form fields', () => {
-    render(<BookingForm submitForm={mockSubmitForm} />);
+    render(<BookingForm submitForm={mockSubmitForm} availableTimes={mockAvailableTimes} dispatch={mockDispatch} />);
     
     expect(screen.getByLabelText(/choose date/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/choose time/i)).toBeInTheDocument();
@@ -19,7 +22,7 @@ describe('BookingForm', () => {
   });
 
   test('displays validation errors for empty required fields', async () => {
-    render(<BookingForm submitForm={mockSubmitForm} />);
+    render(<BookingForm submitForm={mockSubmitForm} availableTimes={mockAvailableTimes} dispatch={mockDispatch} />);
     
     const submitButton = screen.getByRole('button', { name: /submit reservation request/i });
     fireEvent.click(submitButton);
@@ -33,7 +36,7 @@ describe('BookingForm', () => {
 
   test('validates past dates', async () => {
     
-    render(<BookingForm submitForm={mockSubmitForm} />);
+    render(<BookingForm submitForm={mockSubmitForm} availableTimes={mockAvailableTimes} dispatch={mockDispatch} />);
     
     const dateInput = screen.getByLabelText(/choose date/i);
     const pastDate = '2023-01-01';
@@ -50,7 +53,7 @@ describe('BookingForm', () => {
 
   test('validates guest count range', async () => {
     
-    render(<BookingForm submitForm={mockSubmitForm} />);
+    render(<BookingForm submitForm={mockSubmitForm} availableTimes={mockAvailableTimes} dispatch={mockDispatch} />);
     
     const guestsInput = screen.getByLabelText(/number of guests/i);
     
@@ -75,7 +78,7 @@ describe('BookingForm', () => {
 
   test('successfully submits valid form data', async () => {
     
-    render(<BookingForm submitForm={mockSubmitForm} />);
+    render(<BookingForm submitForm={mockSubmitForm} availableTimes={mockAvailableTimes} dispatch={mockDispatch} />);
     
     // Fill out the form with valid data
     const dateInput = screen.getByLabelText(/choose date/i);
@@ -95,19 +98,20 @@ describe('BookingForm', () => {
     const submitButton = screen.getByRole('button', { name: /submit reservation request/i });
     fireEvent.click(submitButton);
     
-    await waitFor(() => {
-      expect(mockSubmitForm).toHaveBeenCalledWith({
-        date: futureDateString,
-        time: '19:00',
-        guests: 4,
-        occasion: 'Anniversary'
-      });
+    // Just wait a bit for async processing
+    await new Promise(resolve => setTimeout(resolve, 1100));
+    
+    expect(mockSubmitForm).toHaveBeenCalledWith({
+      date: futureDateString,
+      time: '19:00',
+      guests: 4,
+      occasion: 'Anniversary'
     });
   });
 
   test('clears errors when user starts typing', async () => {
     
-    render(<BookingForm submitForm={mockSubmitForm} />);
+    render(<BookingForm submitForm={mockSubmitForm} availableTimes={mockAvailableTimes} dispatch={mockDispatch} />);
     
     // Submit form to trigger errors
     const submitButton = screen.getByRole('button', { name: /submit reservation request/i });
@@ -126,7 +130,7 @@ describe('BookingForm', () => {
   });
 
   test('has proper accessibility attributes', () => {
-    render(<BookingForm submitForm={mockSubmitForm} />);
+    render(<BookingForm submitForm={mockSubmitForm} availableTimes={mockAvailableTimes} dispatch={mockDispatch} />);
     
     const form = screen.getByRole('form', { name: /table reservation form/i });
     expect(form).toBeInTheDocument();
@@ -144,7 +148,7 @@ describe('BookingForm', () => {
   });
 
   test('displays available time options', () => {
-    render(<BookingForm submitForm={mockSubmitForm} />);
+    render(<BookingForm submitForm={mockSubmitForm} availableTimes={mockAvailableTimes} dispatch={mockDispatch} />);
     
     // Check for default option
     expect(screen.getByText('Select a time')).toBeInTheDocument();
@@ -157,7 +161,7 @@ describe('BookingForm', () => {
   test('disables submit button during submission', async () => {
     
     const slowSubmitForm = jest.fn(() => new Promise(resolve => setTimeout(resolve, 1000)));
-    render(<BookingForm submitForm={slowSubmitForm} />);
+    render(<BookingForm submitForm={slowSubmitForm} availableTimes={mockAvailableTimes} dispatch={mockDispatch} />);
     
     // Fill out form with valid data
     const dateInput = screen.getByLabelText(/choose date/i);
